@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Word Counter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+
+    h2 {
+      font-weight: bold;
+    }
+
+    textarea {
+      width: 60%;
+      height: 150px;
+      font-size: 16px;
+      padding: 10px;
+      border: 1px solid #333;
+      border-radius: 5px;
+      resize: none;
+    }
+
+    h3 {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2>Word Counter</h2>
+
+  <textarea id="textInput" placeholder="Vetri Technologies solutions"></textarea>
+
+  <h3>Word Count: <span id="wordCount">0</span></h3>
+
+  <script>
+    const textArea = document.getElementById("textInput");
+    const countDisplay = document.getElementById("wordCount");
+
+    textArea.addEventListener("input", function () {
+
+      let text = textArea.value.trim();
+
+      if (text === "") {
+        countDisplay.textContent = 0;
+        return;
+      }
+
+      let words = text.split(/\s+/);
+
+      countDisplay.textContent = words.length;
+    });
+  </script>
+
+</body>
+
+</html>
