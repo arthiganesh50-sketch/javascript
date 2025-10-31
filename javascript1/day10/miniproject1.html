@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Click Counter App</title>
+</head>
+
+<body>
+
+  <h2>Click Counter App</h2>
+  <h3 id="count">0</h3>
+
+  <button id="increment">Click Me</button>
+  <button id="reset">Reset</button>
+
+  <script>
+    let count = 0;
+    const countDisplay = document.getElementById("count");
+    const incrementBtn = document.getElementById("increment");
+    const resetBtn = document.getElementById("reset");
+
+    incrementBtn.addEventListener("click", function () {
+      count++;
+      countDisplay.textContent = count;
+    });
+
+    resetBtn.addEventListener("click", function () {
+      count = 0;
+      countDisplay.textContent = count;
+    });
+  </script>
+
+</body>
+
+</html>
