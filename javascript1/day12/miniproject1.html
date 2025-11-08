@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Inventory Management System</title>
+</head>
+
+<body>
+  <h2>Inventory Management System</h2>
+
+  <h3> Check Stock Availability</h3>
+  <input type="text" id="searchInput" placeholder="Enter Product ID or Name">
+  <button onclick="checkStock()">Search</button>
+
+  <h3> Update Inventory</h3>
+  <input type="number" id="productId" placeholder="Enter Product ID">
+  <input type="number" id="quantityChange" placeholder="Enter Quantity (+/-)">
+  <button onclick="updateStock()">Update Stock</button>
+
+  <h3>Calculate Total Inventory Value</h3>
+  <button onclick="calculateTotal()">Calculate Total Value</button>
+  <p id="totalValue"></p>
+
+  <h3>Product List</h3>
+  <table border="1" cellpadding="5" id="productTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Category</th>
+        <th>Quantity</th>
+        <th>Price</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+
+    let inventory = [
+      { id: 101, name: "Laptop", category: "Electronics", quantity: 10, price: 55000 },
+      { id: 102, name: "Mouse", category: "Electronics", quantity: 25, price: 800 },
+      { id: 103, name: "Keyboard", category: "Electronics", quantity: 15, price: 1500 },
+      { id: 104, name: "Chair", category: "Furniture", quantity: 8, price: 3000 },
+      { id: 105, name: "Table", category: "Furniture", quantity: 5, price: 7000 }
+    ];
+
+    const tableBody = document.querySelector("#productTable tbody");
+
+    function displayProducts(products = inventory) {
+      tableBody.innerHTML = "";
+      products.forEach(product => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${product.id}</td>
+          <td>${product.name}</td>
+          <td>${product.category}</td>
+          <td>${product.quantity}</td>
+          <td>${product.price}</td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    function checkStock() {
+      const search = document.getElementById("searchInput").value.toLowerCase();
+      const product = inventory.find(p =>
+        p.id == search || p.name.toLowerCase() === search
+      );
+
+      if (product) {
+        alert(`${product.name} is in stock. Quantity: ${product.quantity}`);
+      } else {
+        alert("Product not found!");
+      }
+    }
+
+    function updateStock() {
+      const id = parseInt(document.getElementById("productId").value);
+      const change = parseInt(document.getElementById("quantityChange").value);
+      const product = inventory.find(p => p.id === id);
+
+      if (!product) {
+        alert("Product not found!");
+        return;
+      }
+
+      product.quantity += change;
+
+      if (product.quantity < 0) product.quantity = 0;
+
+      alert(`Updated ${product.name}. New Quantity: ${product.quantity}`);
+      displayProducts();
+    }
+
+    function calculateTotal() {
+      const total = inventory.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      document.getElementById("totalValue").innerText = "Total Inventory Value: ₹" + total;
+    }
+
+    displayProducts();
+  </script>
+</body>
+
+</html>

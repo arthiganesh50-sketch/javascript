@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Library Book Management System</title>
+</head>
+
+<body>
+  <h2>Library Book Management System</h2>
+
+  <h3>Search Books</h3>
+  <input type="text" id="searchInput" placeholder="Enter title, author, or genre">
+  <button onclick="searchBooks()">Search</button>
+
+  <h3>Issue / Return Book</h3>
+  <input type="number" id="bookId" placeholder="Enter Book ID">
+  <input type="text" id="borrowerName" placeholder="Borrower Name (for issue)">
+  <button onclick="issueBook()">Issue</button>
+  <button onclick="returnBook()">Return</button>
+
+  <h3>Show Available Books</h3>
+  <button onclick="showAvailableBooks()">Show Available Books</button>
+
+  <h3>Book List</h3>
+  <table border="1" cellpadding="5" id="bookTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Genre</th>
+        <th>Status</th>
+        <th>Borrower</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    let library = [
+      { bookId: 1, title: "The Great Gatsby", author: "F. Scott Fitzgerald", genre: "Classic", available: true, borrower: null },
+      { bookId: 2, title: "To Kill a Mockingbird", author: "Harper Lee", genre: "Classic", available: false, borrower: "Arthi" },
+      { bookId: 3, title: "1984", author: "George Orwell", genre: "Dystopian", available: true, borrower: null },
+      { bookId: 4, title: "The Alchemist", author: "Paulo Coelho", genre: "Fiction", available: false, borrower: "Ganesh" },
+      { bookId: 5, title: "Atomic Habits", author: "James Clear", genre: "Self-help", available: true, borrower: null }
+    ];
+
+    const tableBody = document.querySelector("#bookTable tbody");
+
+    function displayBooks(books = library) {
+      tableBody.innerHTML = "";
+      books.forEach(book => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${book.bookId}</td>
+          <td>${book.title}</td>
+          <td>${book.author}</td>
+          <td>${book.genre}</td>
+          <td>${book.available ? "Available" : "Borrowed"}</td>
+          <td>${book.borrower ? book.borrower : "-"}</td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    function searchBooks() {
+      const keyword = document.getElementById("searchInput").value.toLowerCase();
+      const results = library.filter(
+        b => b.title.toLowerCase().includes(keyword) ||
+          b.author.toLowerCase().includes(keyword) ||
+          b.genre.toLowerCase().includes(keyword)
+      );
+      displayBooks(results);
+    }
+
+    function issueBook() {
+      const id = parseInt(document.getElementById("bookId").value);
+      const name = document.getElementById("borrowerName").value.trim();
+      const book = library.find(b => b.bookId === id);
+
+      if (!book) {
+        alert("Book not found!");
+        return;
+      }
+      if (!book.available) {
+        alert(`"${book.title}" is already borrowed by ${book.borrower}.`);
+        return;
+      }
+      if (!name) {
+        alert("Please enter borrower name.");
+        return;
+      }
+
+      book.available = false;
+      book.borrower = name;
+      alert(`"${book.title}" issued to ${name}.`);
+      displayBooks();
+    }
+
+    function returnBook() {
+      const id = parseInt(document.getElementById("bookId").value);
+      const book = library.find(b => b.bookId === id);
+
+      if (!book) {
+        alert("Book not found!");
+        return;
+      }
+      if (book.available) {
+        alert(`"${book.title}" was not borrowed.`);
+        return;
+      }
+
+      const borrower = book.borrower;
+      book.available = true;
+      book.borrower = null;
+      alert(`"${book.title}" returned by ${borrower}.`);
+      displayBooks();
+    }
+
+    function showAvailableBooks() {
+      const available = library.filter(b => b.available);
+      displayBooks(available);
+    }
+
+    displayBooks();
+  </script>
+</body>
+
+</html>

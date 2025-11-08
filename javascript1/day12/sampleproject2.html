@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Customer Order Management</title>
+</head>
+
+<body>
+  <h2>Customer Order Management System</h2>
+
+  <h3> Search Order</h3>
+  <input type="text" id="searchInput" placeholder="Enter Order ID or Customer Name">
+  <button onclick="searchOrder()">Search</button>
+
+  <h3> Filter Orders by Customer</h3>
+  <input type="text" id="filterCustomer" placeholder="Enter Customer Name">
+  <button onclick="filterOrders()">Filter</button>
+
+  <h3> Calculate Total Revenue</h3>
+  <button onclick="calculateRevenue()">Calculate Total Revenue</button>
+  <p id="revenue"></p>
+
+  <h3>All Orders</h3>
+  <table border="1" cellpadding="5" id="orderTable">
+    <thead>
+      <tr>
+        <th>Order ID</th>
+        <th>Customer Name</th>
+        <th>Ordered Items</th>
+        <th>Total Amount</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    let orders = [
+      { id: 1, customer: "Arun", items: "Laptop, Mouse", amount: 56000 },
+      { id: 2, customer: "Priya", items: "Chair, Table", amount: 9500 },
+      { id: 3, customer: "Ravi", items: "Keyboard, Mouse", amount: 2300 },
+      { id: 4, customer: "Priya", items: "Monitor", amount: 8000 },
+      { id: 5, customer: "Kumar", items: "Laptop", amount: 55000 }
+    ];
+
+    const tableBody = document.querySelector("#orderTable tbody");
+
+    function displayOrders(list = orders) {
+      tableBody.innerHTML = "";
+      list.forEach(order => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${order.id}</td>
+          <td>${order.customer}</td>
+          <td>${order.items}</td>
+          <td>${order.amount}</td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    function searchOrder() {
+      const search = document.getElementById("searchInput").value.toLowerCase();
+      const result = orders.find(o =>
+        o.id == search || o.customer.toLowerCase() === search
+      );
+      if (result) {
+        alert(`Order Found:\nCustomer: ${result.customer}\nItems: ${result.items}\nAmount: ₹${result.amount}`);
+      } else {
+        alert("Order not found!");
+      }
+    }
+
+    function calculateRevenue() {
+      const total = orders.reduce((sum, order) => sum + order.amount, 0);
+      document.getElementById("revenue").innerText = "Total Revenue: ₹" + total;
+    }
+
+    function filterOrders() {
+      const name = document.getElementById("filterCustomer").value.toLowerCase();
+      const filtered = orders.filter(o => o.customer.toLowerCase() === name);
+      if (filtered.length > 0) {
+        displayOrders(filtered);
+      } else {
+        alert("No orders found for this customer!");
+      }
+    }
+
+    displayOrders();
+  </script>
+</body>
+
+</html>
