@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Simple E-Commerce Catalog</title>
+  <style>
+    body {
+      font-family: Arial;
+      margin: 20px;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    .controls {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    input,
+    button,
+    select {
+      margin: 5px;
+      padding: 5px;
+    }
+
+    .product {
+      border: 1px solid black;
+      padding: 10px;
+      margin: 10px;
+      width: 180px;
+      text-align: center;
+      display: inline-block;
+      vertical-align: top;
+      cursor: pointer;
+    }
+
+    #details {
+      border: 1px solid gray;
+      padding: 10px;
+      margin-top: 20px;
+      width: 250px;
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2>🛒 Simple E-Commerce Product Catalog</h2>
+
+  <div class="controls">
+    <button onclick="showAll()">Show Products</button>
+    <button onclick="filterBelow500()">Below $500</button>
+    <select id="sortSelect" onchange="sortProducts()">
+      <option value="">Sort by Price</option>
+      <option value="low">Low to High</option>
+      <option value="high">High to Low</option>
+    </select>
+    <br>
+    <input type="text" id="searchBox" placeholder="Search product name">
+    <button onclick="searchProduct()">Search</button>
+  </div>
+
+  <div id="productList"></div>
+
+  <div id="details"></div>
+
+  <script>
+    const products = [
+      { id: 1, name: "Smartphone", price: 450, category: "Electronics" },
+      { id: 2, name: "Laptop", price: 900, category: "Electronics" },
+      { id: 3, name: "Shoes", price: 120, category: "Fashion" },
+      { id: 4, name: "Watch", price: 200, category: "Accessories" },
+      { id: 5, name: "Headphones", price: 80, category: "Electronics" }
+    ];
+
+    function showAll() {
+      display(products);
+    }
+
+    function display(list) {
+      const container = document.getElementById("productList");
+      container.innerHTML = "";
+      list.forEach(p => {
+        const item = document.createElement("div");
+        item.className = "product";
+        item.innerHTML = `<h4>${p.name}</h4><p>Price: $${p.price}</p><p>${p.category}</p>`;
+        item.onclick = () => showDetails(p);
+        container.appendChild(item);
+      });
+    }
+
+    function filterBelow500() {
+      const filtered = products.filter(p => p.price < 500);
+      display(filtered);
+    }
+
+    function sortProducts() {
+      const option = document.getElementById("sortSelect").value;
+      let sorted = [...products];
+      if (option === "low") sorted.sort((a, b) => a.price - b.price);
+      if (option === "high") sorted.sort((a, b) => b.price - a.price);
+      display(sorted);
+    }
+
+    function searchProduct() {
+      const text = document.getElementById("searchBox").value.toLowerCase();
+      const result = products.filter(p => p.name.toLowerCase().includes(text));
+      display(result);
+    }
+
+    function showDetails(product) {
+      const detailBox = document.getElementById("details");
+      detailBox.style.display = "block";
+      detailBox.innerHTML = `
+        <h3>${product.name}</h3>
+        <p>Price: $${product.price}</p>
+        <p>Category: ${product.category}</p>
+        <p>ID: ${product.id}</p>
+      `;
+    }
+
+    window.onload = showAll;
+  </script>
+</body>
+
+</html>
