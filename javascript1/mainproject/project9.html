@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>📚 Online Bookstore</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      transition: all 0.2s ease;
+    }
+
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #f0f3ff, #dbe4ff);
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+
+    h1 {
+      text-align: center;
+      color: #2b2d42;
+      margin-top: 20px;
+      font-size: 2rem;
+    }
+
+    #searchBox {
+      display: block;
+      margin: 20px auto;
+      width: 300px;
+      padding: 10px 15px;
+      border: 2px solid #6c63ff;
+      border-radius: 25px;
+      outline: none;
+      font-size: 14px;
+    }
+
+    #searchBox:focus {
+      box-shadow: 0 0 10px rgba(108, 99, 255, 0.4);
+    }
+
+    .form-container {
+      background: white;
+      width: 90%;
+      max-width: 450px;
+      margin: 20px auto;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-container h3 {
+      text-align: center;
+      color: #444;
+      margin-bottom: 15px;
+    }
+
+    .form-container input {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1.5px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .form-container input:focus {
+      border-color: #6c63ff;
+      box-shadow: 0 0 5px rgba(108, 99, 255, 0.4);
+    }
+
+    .form-container button {
+      background: #6c63ff;
+      color: white;
+      border: none;
+      padding: 10px;
+      width: 100%;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .form-container button:hover {
+      background: #554fee;
+    }
+
+    .book-list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .book {
+      background: white;
+      border-radius: 12px;
+      padding: 15px;
+      width: 220px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .book:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .book h3 {
+      font-size: 18px;
+      color: #222;
+    }
+
+    .book p {
+      color: #666;
+      margin: 5px 0;
+    }
+
+    .book button {
+      background: #00b894;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .book button:hover {
+      background: #019874;
+    }
+
+    .cart {
+      max-width: 450px;
+      margin: 30px auto;
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .cart h2 {
+      color: #2b2d42;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .cart-item button {
+      background: #ff4757;
+      border: none;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .cart-item button:hover {
+      background: #e84118;
+    }
+
+    footer {
+      text-align: center;
+      margin: 20px 0;
+      color: #666;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>📚 VTS Bookstore</h1>
+
+  <input type="text" id="searchBox" placeholder="🔍 Search by title or author..." onkeyup="searchBooks()">
+
+  <div class="form-container">
+    <h3>Add a New Book</h3>
+    <input type="text" id="title" placeholder="Book Title">
+    <input type="text" id="author" placeholder="Author Name">
+    <input type="number" id="price" placeholder="Price (₹)">
+    <button onclick="addBook()">➕ Add Book</button>
+  </div>
+
+  <div class="book-list" id="bookList"></div>
+
+  <div class="cart">
+    <h2>🛒 Your Cart</h2>
+    <div id="cartItems"></div>
+  </div>
+
+  <footer>✨ We are here to give your favourite books ❤️ VTS Bookstore</footer>
+
+  <script>
+    let books = JSON.parse(localStorage.getItem("books")) || [
+      { title: "The Alchemist", author: "Paulo Coelho", price: 450 },
+      { title: "Sapiens", author: "Yuval Noah Harari", price: 800 },
+      { title: "Atomic Habits", author: "James Clear", price: 550 }
+    ];
+
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    function displayBooks(bookArray) {
+      const list = document.getElementById("bookList");
+      list.innerHTML = "";
+      if (bookArray.length === 0) {
+        list.innerHTML = "<p>No books found!</p>";
+        return;
+      }
+
+      bookArray.forEach((book, index) => {
+        const div = document.createElement("div");
+        div.className = "book";
+        div.innerHTML = `
+          <h3>${book.title}</h3>
+          <p>by ${book.author}</p>
+          <p><b>₹${book.price}</b></p>
+          <button onclick="addToCart(${index})">Add to Cart</button>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    function addBook() {
+      const title = document.getElementById("title").value.trim();
+      const author = document.getElementById("author").value.trim();
+      const price = parseInt(document.getElementById("price").value);
+
+      if (!title || !author || !price) {
+        alert("Please fill all fields!");
+        return;
+      }
+
+      books.push({ title, author, price });
+      localStorage.setItem("books", JSON.stringify(books));
+      displayBooks(books);
+
+      document.getElementById("title").value = "";
+      document.getElementById("author").value = "";
+      document.getElementById("price").value = "";
+    }
+
+    function addToCart(index) {
+      cart.push(books[index]);
+      localStorage.setItem("cart", JSON.stringify(cart));
+      displayCart();
+    }
+
+    function displayCart() {
+      const cartDiv = document.getElementById("cartItems");
+      cartDiv.innerHTML = "";
+      if (cart.length === 0) {
+        cartDiv.innerHTML = "<p>No books in cart</p>";
+        return;
+      }
+
+      cart.forEach((item, i) => {
+        cartDiv.innerHTML += `
+          <div class="cart-item">
+            <span>${item.title} - ₹${item.price}</span>
+            <button onclick="removeFromCart(${i})">❌</button>
+          </div>
+        `;
+      });
+    }
+
+    function removeFromCart(i) {
+      cart.splice(i, 1);
+      localStorage.setItem("cart", JSON.stringify(cart));
+      displayCart();
+    }
+
+    function searchBooks() {
+      const search = document.getElementById("searchBox").value.toLowerCase();
+      const filtered = books.filter(b =>
+        b.title.toLowerCase().includes(search) || b.author.toLowerCase().includes(search)
+      );
+      displayBooks(filtered);
+    }
+
+    displayBooks(books);
+    displayCart();
+  </script>
+
+</body>
+
+</html>

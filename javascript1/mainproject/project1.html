@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Chat App</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #89f7fe, #66a6ff);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .chat-container {
+      width: 400px;
+      height: 600px;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .chat-header {
+      background: #007bff;
+      color: white;
+      text-align: center;
+      padding: 15px;
+      font-weight: 600;
+      font-size: 18px;
+    }
+
+    .chat-box {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .message {
+      max-width: 70%;
+      padding: 10px 15px;
+      border-radius: 15px;
+      position: relative;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .sent {
+      background: #007bff;
+      color: white;
+      align-self: flex-end;
+      border-bottom-right-radius: 2px;
+    }
+
+    .received {
+      background: #f1f0f0;
+      align-self: flex-start;
+      border-bottom-left-radius: 2px;
+    }
+
+    .timestamp {
+      font-size: 10px;
+      color: #555;
+      margin-top: 2px;
+      text-align: right;
+    }
+
+    .typing {
+      font-size: 13px;
+      color: gray;
+      margin: 5px;
+      font-style: italic;
+    }
+
+    .chat-input {
+      display: flex;
+      padding: 10px;
+      border-top: 1px solid #ccc;
+      background: #f9f9f9;
+    }
+
+    .chat-input input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 20px;
+      border: 1px solid #ccc;
+      outline: none;
+      font-size: 14px;
+    }
+
+    .chat-input button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 50%;
+      margin-left: 10px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .chat-input button:hover {
+      background: #0056b3;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="chat-container">
+    <div class="chat-header">💬 Chat</div>
+    <div class="chat-box" id="chatBox"></div>
+    <div id="typingIndicator" class="typing" style="display:none;">Bot is typing...</div>
+    <div class="chat-input">
+      <input type="text" id="messageInput" placeholder="Type a message...">
+      <button onclick="sendMessage()">➤</button>
+    </div>
+  </div>
+
+  <script>
+    const chatBox = document.getElementById('chatBox');
+    const input = document.getElementById('messageInput');
+    const typingIndicator = document.getElementById('typingIndicator');
+
+    window.onload = () => {
+      const saved = JSON.parse(localStorage.getItem('chatHistory')) || [];
+      saved.forEach(msg => displayMessage(msg.text, msg.type, msg.time));
+    };
+
+    function saveMessage(text, type, time) {
+      const chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
+      chatHistory.push({ text, type, time });
+      localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+    }
+
+    function displayMessage(text, type, time) {
+      const msg = document.createElement('div');
+      msg.classList.add('message', type);
+      msg.innerHTML = `${text}<div class="timestamp">${time}</div>`;
+      chatBox.appendChild(msg);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function sendMessage() {
+      const text = input.value.trim();
+      if (text === '') return;
+
+      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      displayMessage(text, 'sent', time);
+      saveMessage(text, 'sent', time);
+
+      input.value = '';
+      showBotReply(text);
+    }
+
+    function showBotReply(userText) {
+      typingIndicator.style.display = 'block';
+      setTimeout(() => {
+        typingIndicator.style.display = 'none';
+        const replies = [
+          "That's interesting! 🤔",
+          "Can you tell me more?",
+          "I'm here to chat! 😊",
+          "Wow, really?",
+          "Let's keep talking!"
+        ];
+        const reply = replies[Math.floor(Math.random() * replies.length)];
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        displayMessage(reply, 'received', time);
+        saveMessage(reply, 'received', time);
+      }, 1000);
+    }
+
+    input.addEventListener("keypress", e => {
+      if (e.key === "Enter") sendMessage();
+    });
+  </script>
+
+</body>
+
+</html>

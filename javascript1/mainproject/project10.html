@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>👨‍💼 Employee Attendance Management System</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      transition: all 0.2s ease;
+    }
+
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #f0f3ff, #e2ebff);
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+
+    h1 {
+      text-align: center;
+      color: #2b2d42;
+      margin-bottom: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    input,
+    select,
+    button {
+      padding: 8px;
+      margin: 5px;
+      border: 1.5px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: #6c63ff;
+      box-shadow: 0 0 5px rgba(108, 99, 255, 0.4);
+      outline: none;
+    }
+
+    button {
+      background: #6c63ff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #574bff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    th,
+    td {
+      border: 1px solid #ddd;
+      text-align: center;
+      padding: 10px;
+    }
+
+    th {
+      background: #6c63ff;
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .filter-section {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 20px;
+      color: #666;
+    }
+
+    .present {
+      color: green;
+      font-weight: 600;
+    }
+
+    .absent {
+      color: red;
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>👨‍💼 Employee Attendance Management System</h1>
+
+  <div class="container">
+    <h3>Add New Employee</h3>
+    <div>
+      <input type="text" id="empName" placeholder="Employee Name">
+      <input type="text" id="empId" placeholder="Employee ID">
+      <input type="text" id="empDept" placeholder="Department">
+      <button onclick="addEmployee()">➕ Add Employee</button>
+    </div>
+
+    <div class="filter-section">
+      <select id="filterDept" onchange="filterEmployees()">
+        <option value="">Filter by Department</option>
+      </select>
+
+      <select id="filterStatus" onchange="filterEmployees()">
+        <option value="">Filter by Status</option>
+        <option value="Present">Present</option>
+        <option value="Absent">Absent</option>
+      </select>
+
+      <button onclick="sortByName()">🔤 Sort by Name</button>
+      <button onclick="sortByAttendance()">📊 Sort by Attendance</button>
+    </div>
+
+    <table id="empTable">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>ID</th>
+          <th>Department</th>
+          <th>Status</th>
+          <th>Attendance Count</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script>
+    let employees = JSON.parse(localStorage.getItem("employees")) || [];
+
+    function displayEmployees(list = employees) {
+      const tbody = document.querySelector("#empTable tbody");
+      tbody.innerHTML = "";
+
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6">No employees found</td></tr>`;
+        return;
+      }
+
+      list.forEach((emp, i) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${emp.name}</td>
+          <td>${emp.id}</td>
+          <td>${emp.dept}</td>
+          <td class="${emp.status === 'Present' ? 'present' : 'absent'}">${emp.status}</td>
+          <td>${emp.attendanceCount}</td>
+          <td>
+            <button onclick="markAttendance(${i}, 'Present')">✅ Present</button>
+            <button onclick="markAttendance(${i}, 'Absent')">❌ Absent</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      updateDepartmentFilter();
+      localStorage.setItem("employees", JSON.stringify(employees));
+    }
+
+    function addEmployee() {
+      const name = document.getElementById("empName").value.trim();
+      const id = document.getElementById("empId").value.trim();
+      const dept = document.getElementById("empDept").value.trim();
+
+      if (!name || !id || !dept) {
+        alert("Please fill all fields!");
+        return;
+      }
+
+      employees.push({ name, id, dept, status: "Absent", attendanceCount: 0 });
+      document.getElementById("empName").value = "";
+      document.getElementById("empId").value = "";
+      document.getElementById("empDept").value = "";
+      displayEmployees();
+    }
+
+    function markAttendance(index, status) {
+      employees[index].status = status;
+      if (status === "Present") employees[index].attendanceCount++;
+      displayEmployees();
+    }
+
+    function filterEmployees() {
+      const dept = document.getElementById("filterDept").value;
+      const status = document.getElementById("filterStatus").value;
+
+      let filtered = employees;
+
+      if (dept) filtered = filtered.filter(emp => emp.dept === dept);
+      if (status) filtered = filtered.filter(emp => emp.status === status);
+
+      displayEmployees(filtered);
+    }
+
+    function updateDepartmentFilter() {
+      const deptSelect = document.getElementById("filterDept");
+      const depts = [...new Set(employees.map(emp => emp.dept))];
+      deptSelect.innerHTML = `<option value="">Filter by Department</option>`;
+      depts.forEach(dept => {
+        deptSelect.innerHTML += `<option value="${dept}">${dept}</option>`;
+      });
+    }
+
+    function sortByName() {
+      employees.sort((a, b) => a.name.localeCompare(b.name));
+      displayEmployees();
+    }
+
+    function sortByAttendance() {
+      employees.sort((a, b) => b.attendanceCount - a.attendanceCount);
+      displayEmployees();
+    }
+
+    displayEmployees();
+  </script>
+
+</body>
+
+</html>
