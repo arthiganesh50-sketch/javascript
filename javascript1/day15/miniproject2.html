@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Error Logger</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f9;
+      text-align: center;
+      padding: 40px;
+    }
+
+    button {
+      margin: 10px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #output {
+      margin-top: 20px;
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      text-align: left;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>🌍 API Logger with Error Handling</h2>
+  <p>Fetch API data, catch errors, and store them in LocalStorage.</p>
+
+  <button id="fetchData">Fetch API Data</button>
+  <button id="viewLogs">View Error Logs</button>
+
+  <div id="output">Result will appear here...</div>
+
+  <script>
+    const output = document.getElementById("output");
+
+    async function fetchAPIData() {
+      try {
+        const response = await fetch("https://invalid-api-url.com/data");
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        output.innerHTML = `<b>✅ Success:</b> ${JSON.stringify(data)}`;
+      }
+      catch (error) {
+        output.innerHTML = `<b>❌ Error:</b> ${error.message}`;
+
+        const errors = JSON.parse(localStorage.getItem("apiErrors")) || [];
+        errors.push({ message: error.message, time: new Date().toLocaleString() });
+        localStorage.setItem("apiErrors", JSON.stringify(errors));
+      }
+    }
+
+    function viewErrorLogs() {
+      const logs = JSON.parse(localStorage.getItem("apiErrors")) || [];
+      if (logs.length === 0) {
+        output.innerHTML = "✅ No errors logged yet.";
+      } else {
+        output.innerHTML = "<b>🧾 Stored Error Logs:</b><br><br>" +
+          logs.map(log => `${log.time} - ${log.message}`).join("<br>");
+      }
+    }
+
+    document.getElementById("fetchData").addEventListener("click", fetchAPIData);
+    document.getElementById("viewLogs").addEventListener("click", viewErrorLogs);
+  </script>
+</body>
+
+</html>
