@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dictionary App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+
+    input,
+    button {
+      margin: 10px;
+      padding: 10px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>Dictionary App</h2>
+  <input type="text" id="word" placeholder="Enter a word">
+  <button id="getDefinition">Get Definition</button>
+  <p id="definition"></p>
+  <script>
+    async function fetchDefinition() {
+      let word = document.getElementById("word").value;
+      let response = await
+        fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
+      let data = await response.json();
+      if (data.title === "No Definitions Found") {
+        document.getElementById("definition").innerText = "Word not found.";
+        return;
+      }
+      document.getElementById("definition").innerText = `${data[0].word}:
+${data[0].meanings[0].definitions[0].definition}`;
+    }
+    document.getElementById("getDefinition").addEventListener("click",
+      fetchDefinition);
+  </script>
+</body>
+
+</html>

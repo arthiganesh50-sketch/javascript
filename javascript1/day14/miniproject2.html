@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live Air Quality Index (AQI)</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body {
+      background-color: #0d1117;
+      color: #e6edf3;
+      font-family: "Segoe UI", sans-serif;
+    }
+
+    .container {
+      max-width: 700px;
+      margin-top: 60px;
+      background: #161b22;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+    }
+
+    .aqi-box {
+      font-size: 2rem;
+      font-weight: bold;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container text-center">
+    <h2 class="fw-bold mb-3">🌎 Live Air Quality Index (AQI)</h2>
+    <p class="text-secondary mb-4">Select a city to view real-time air quality and health advice.</p>
+
+    <div class="d-flex justify-content-center align-items-center gap-2 mb-3">
+      <select id="citySelect" class="form-select w-auto">
+        <option value="Chennai">Chennai</option>
+        <option value="Delhi">Delhi</option>
+        <option value="Mumbai">Mumbai</option>
+        <option value="Bengaluru">Bengaluru</option>
+        <option value="Kolkata">Kolkata</option>
+        <option value="Hyderabad">Hyderabad</option>
+      </select>
+      <button id="fetchBtn" class="btn btn-light fw-semibold">Fetch AQI</button>
+    </div>
+
+    <div id="aqiContainer">
+      <p class="text-secondary">Select a city and click <b>Fetch AQI</b> to get data.</p>
+    </div>
+  </div>
+
+  <script>
+    const apiKey = "demo"; // Replace with your key from https://aqicn.org/api/
+    const aqiContainer = document.getElementById("aqiContainer");
+    const fetchBtn = document.getElementById("fetchBtn");
+    const citySelect = document.getElementById("citySelect");
+
+    // Health advice based on AQI
+    function getAqiAdvice(aqi) {
+      if (aqi <= 50) return { level: "Good 😊", color: "#00e400", advice: "Air quality is considered satisfactory." };
+      if (aqi <= 100) return { level: "Moderate 😐", color: "#ffff00", advice: "Acceptable air quality for most people." };
+      if (aqi <= 150) return { level: "Unhealthy for Sensitive Groups 😷", color: "#ff7e00", advice: "Sensitive individuals should reduce outdoor activity." };
+      if (aqi <= 200) return { level: "Unhealthy ☣️", color: "#ff0000", advice: "Everyone may begin to experience health effects." };
+      if (aqi <= 300) return { level: "Very Unhealthy ☠️", color: "#8f3f97", advice: "Health warnings of emergency conditions." };
+      return { level: "Hazardous 💀", color: "#7e0023", advice: "Avoid outdoor activities completely." };
+    }
+
+    async function fetchAQI(city) {
+      aqiContainer.innerHTML = `<p class="text-secondary">Fetching live air quality data...</p>`;
+      try {
+        const url = `https://api.waqi.info/feed/${city}/?token=${apiKey}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("Failed to fetch data");
+        const data = await res.json();
+        if (data.status !== "ok") throw new Error("Invalid city or API error");
+
+        const aqi = data.data.aqi;
+        const advice = getAqiAdvice(aqi);
+
+        const { pm25, pm10, o3, no2, so2, co } = data.data.iaqi;
+        aqiContainer.innerHTML = `
+          <div class="aqi-box" style="background:${advice.color}; color:black;">
+            AQI: ${aqi} (${advice.level})
+          </div>
+          <ul class="list-group text-start mb-3">
+            <li class="list-group-item bg-transparent text-light">PM2.5: ${pm25?.v ?? "N/A"}</li>
+            <li class="list-group-item bg-transparent text-light">PM10: ${pm10?.v ?? "N/A"}</li>
+            <li class="list-group-item bg-transparent text-light">O₃: ${o3?.v ?? "N/A"}</li>
+            <li class="list-group-item bg-transparent text-light">NO₂: ${no2?.v ?? "N/A"}</li>
+            <li class="list-group-item bg-transparent text-light">SO₂: ${so2?.v ?? "N/A"}</li>
+            <li class="list-group-item bg-transparent text-light">CO: ${co?.v ?? "N/A"}</li>
+          </ul>
+          <p class="text-info"><b>Health Advice:</b> ${advice.advice}</p>
+          <p class="text-secondary small">Data source: <a href="https://aqicn.org" target="_blank" class="text-light">AQICN API</a></p>
+        `;
+      } catch (error) {
+        aqiContainer.innerHTML = `<p class="text-danger">Error: ${error.message}</p>`;
+      }
+    }
+
+    fetchBtn.addEventListener("click", () => {
+      const city = citySelect.value;
+      fetchAQI(city);
+    });
+  </script>
+  </bo
